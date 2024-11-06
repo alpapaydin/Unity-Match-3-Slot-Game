@@ -1,0 +1,4 @@
+repository "Spinmatcher@alpapaydin@cloud"
+  path "/"
+    br "/main"
+    co "/main"

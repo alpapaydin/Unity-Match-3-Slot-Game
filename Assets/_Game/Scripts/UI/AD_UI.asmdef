@@ -1,0 +1,16 @@
+{
+    "name": "AD_UI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:272d057da6551784ba8bf126dbd2671e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
