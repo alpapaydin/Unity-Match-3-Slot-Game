@@ -165,9 +165,9 @@ MonoBehaviour:
     sprite: {fileID: -8999343754290144741, guid: 68afdb4400c286846a58e11548450a08, type: 3}
   tilePrefab: {fileID: 3587910118911784266, guid: 307c15c89cc079d4496bd263ee903131, type: 3}
   padding: 0.03
-  maxSpinSpeed: 4
-  accelerationTime: 1
-  decelerationTime: 0.3
+  maxSpinSpeed: 10
+  accelerationTime: 0.7
+  decelerationTime: 1
   columnStartDelay: 0.25
   spinSpeedCurve:
     serializedVersion: 2
@@ -193,10 +193,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  spinningSpacing: 0.3
   minSpinTimeBeforeStop: 1
-  columnStopInterval: 0.3
-  minSpinningColumns: 3
   randomizeSize: 0
   defaultSize: 7
 --- !u!4 &690710965
