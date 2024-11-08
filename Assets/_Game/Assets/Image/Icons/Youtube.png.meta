@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Youtube_0: -2060017835748981205
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

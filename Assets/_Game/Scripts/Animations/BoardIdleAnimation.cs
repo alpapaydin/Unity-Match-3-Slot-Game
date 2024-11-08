@@ -38,7 +38,7 @@ public class BoardIdleAnimation : MonoBehaviour
         public Vector3[] initialPositions;
     }
 
-    private void Start()
+    private void Awake()
     {
         gameBoard = GetComponent<GameBoard>();
         if (gameBoard != null)
@@ -64,6 +64,7 @@ public class BoardIdleAnimation : MonoBehaviour
         currentAnimationStrength = 1f;
         isFadingOut = false;
         StartCoroutine(FadeInAnimation());
+
     }
 
     public IEnumerator WaitForFadeOut()

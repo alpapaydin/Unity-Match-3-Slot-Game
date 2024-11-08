@@ -75,7 +75,7 @@ MonoBehaviour:
   backgroundPadding: 0
   borderWidth: 0.3
   cornerRadius: 0
-  backgroundScaleMultiplier: {x: 1, y: 0.5}
+  backgroundScaleMultiplier: {x: 2, y: 0.5}
   winSound: {fileID: 8300000, guid: 012755eb2c661b245a70737dae9b4d61, type: 3}
   letterSound: {fileID: 8300000, guid: 2932261e09f41f647a039cd5ce795fac, type: 3}
   fireworkSound: {fileID: 8300000, guid: 94aa3d2d956029f45aec077967341e8d, type: 3}

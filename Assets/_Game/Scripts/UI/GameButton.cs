@@ -278,12 +278,8 @@ public class GameButton : MonoBehaviour
         Vector3 centerPosition = new Vector3(0, 0, -0.1f);
         if (textMesh != null)
         {
-            textMesh.transform.localPosition = centerPosition;
-            originalTextPosition = centerPosition;
-        }
-        if (outlineTextMesh != null)
-        {
-            outlineTextMesh.transform.localPosition = new Vector3(0, 0, 0.1f);
+            //textMesh.transform.localPosition = centerPosition;
+            //originalTextPosition = centerPosition;
         }
     }
 

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using System;
 public class TextAnimator : MonoBehaviour
 {
     [Header("Text Settings")]
@@ -61,6 +61,8 @@ public class TextAnimator : MonoBehaviour
 
     [Header("Visual Effects")]
     [SerializeField] private GameObject fireworksPrefab;
+
+    public event Action OnTextAnimEnd;
 
     private List<GameObject> spawnedLetters = new List<GameObject>();
     private GameObject background;
@@ -241,6 +243,7 @@ public class TextAnimator : MonoBehaviour
         yield return StartCoroutine(StampAnimation());
         yield return new WaitForSeconds(delayBeforeText);
         yield return StartCoroutine(AnimateText());
+        OnTextAnimEnd?.Invoke();
     }
 
     private List<List<char>> CalculateLineBreaks(string text, out Vector2 totalSize)
@@ -444,7 +447,7 @@ public class TextAnimator : MonoBehaviour
         {
             float progress = (float)currentLetterIndex / totalLetterCount;
             float progressivePitch = Mathf.Lerp(startPitch, endPitch, pitchProgressionCurve.Evaluate(progress));
-            float finalPitch = progressivePitch + Random.Range(-pitchVariation, pitchVariation);
+            float finalPitch = progressivePitch + UnityEngine.Random.Range(-pitchVariation, pitchVariation);
             audioSource.pitch = finalPitch;
             audioSource.volume = volume;
             audioSource.PlayOneShot(letterSound);

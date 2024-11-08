@@ -33,6 +33,7 @@ public class SwipeManager : MonoBehaviour
 
     public event Action<int> OnMatchFound;
     public event Action OnSwipeStarted;
+    public event Action OnGameLost;
 
     private bool isSwipeEnabled = false;
     private bool hasSwipedOnce = false;
@@ -174,56 +175,130 @@ public class SwipeManager : MonoBehaviour
     private void HandleSwipeDrag()
     {
         if (selectedTile == null) return;
+
+        Vector2 dragDifference = CalculateDragDifference();
+        UpdateDragPreviewPosition(dragDifference);
+
+        if (IsDragDistanceSufficient(dragDifference))
+        {
+            ProcessSwipe(dragDifference);
+        }
+    }
+
+    private Vector2 CalculateDragDifference()
+    {
         Vector2 currentMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 difference = currentMousePos - swipeStart;
+        return currentMousePos - swipeStart;
+    }
+
+    private void UpdateDragPreviewPosition(Vector2 difference)
+    {
         Vector3 dragPosition = tileStartPosition;
         if (Mathf.Abs(difference.x) > Mathf.Abs(difference.y))
         {
-            float clampedX = Mathf.Clamp(difference.x, -maxDragDistance, maxDragDistance);
-            dragPosition.x += clampedX;
+            dragPosition.x += Mathf.Clamp(difference.x, -maxDragDistance, maxDragDistance);
         }
         else
         {
-            float clampedY = Mathf.Clamp(difference.y, -maxDragDistance, maxDragDistance);
-            dragPosition.y += clampedY;
+            dragPosition.y += Mathf.Clamp(difference.y, -maxDragDistance, maxDragDistance);
         }
         dragPreview.transform.position = dragPosition;
-        if (difference.magnitude >= minSwipeDistance)
+    }
+
+    private bool IsDragDistanceSufficient(Vector2 difference)
+    {
+        return difference.magnitude >= minSwipeDistance;
+    }
+
+    private void ProcessSwipe(Vector2 difference)
+    {
+        Vector2Int direction = GetSwipeDirection(difference);
+        Vector2Int neighborPos = selectedTile.gridPosition + direction;
+
+        if (TryGetValidNeighborTile(neighborPos, out Tile neighborTile))
         {
-            Vector2Int direction = GetSwipeDirection(difference);
-            Vector2Int neighborPos = selectedTile.gridPosition + direction;
-            if (IsValidGridPosition(neighborPos))
-            {
-                Tile neighborTile = gameBoard.GetTileAt(neighborPos.x, neighborPos.y);
-                if (neighborTile != null)
-                {
-                    if (IsTileAvailable(neighborTile) && swipeQueue.Count < maxQueuedSwipes)
-                    {
-                        dragPreview.SetActive(false);
-                        audioSource.PlayOneShot(swipeSound);
-                        QueueSwipe(selectedTile, neighborTile, direction, dragPosition);
-                        if (!hasSwipedOnce)
-                        {
-                            hasSwipedOnce = true;
-                            OnSwipeStarted?.Invoke();
-                            if (uiManager != null)
-                            {
-                                uiManager.DisableAllButtons();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        StartCoroutine(AnimateReturnToStart());
-                    }
-                }
-            }
-            else
-            {
-                StartCoroutine(AnimateReturnToStart());
-            }
-            selectedTile = null;
+            HandleValidSwipe(neighborTile, direction);
         }
+        else
+        {
+            HandleInvalidSwipe();
+        }
+
+        selectedTile = null;
+    }
+
+    private bool TryGetValidNeighborTile(Vector2Int neighborPos, out Tile neighborTile)
+    {
+        neighborTile = null;
+
+        if (!IsValidGridPosition(neighborPos)) return false;
+
+        neighborTile = gameBoard.GetTileAt(neighborPos.x, neighborPos.y);
+        return neighborTile != null;
+    }
+
+    private void HandleValidSwipe(Tile neighborTile, Vector2Int direction)
+    {
+        if (CanProcessSwipe(neighborTile))
+        {
+            ProcessValidSwipe(neighborTile, direction);
+        }
+        else
+        {
+            StartCoroutine(AnimateReturnToStart());
+        }
+    }
+
+    private bool CanProcessSwipe(Tile neighborTile)
+    {
+        return IsTileAvailable(neighborTile) && swipeQueue.Count < maxQueuedSwipes;
+    }
+
+    private void ProcessValidSwipe(Tile neighborTile, Vector2Int direction)
+    {
+        dragPreview.SetActive(false);
+        PlaySwipeSound();
+        QueueSwipe(selectedTile, neighborTile, direction, dragPreview.transform.position);
+        if (!hasSwipedOnce)
+        {
+            HandleFirstSwipe();
+        }
+        gameBoard.AfterSwipe();
+        if (gameBoard.GetRemainingMoves() == 0)
+        {
+            HandleNoMovesRemaining();
+        }
+    }
+
+    private void PlaySwipeSound()
+    {
+        if (audioSource != null && swipeSound != null)
+        {
+            audioSource.PlayOneShot(swipeSound);
+        }
+    }
+
+    private void HandleFirstSwipe()
+    {
+        hasSwipedOnce = true;
+        OnSwipeStarted?.Invoke();
+        gameBoard.StartSwipePhase();
+
+        if (uiManager != null)
+        {
+            uiManager.DisableAllButtons();
+        }
+    }
+
+    private void HandleNoMovesRemaining()
+    {
+        DisableSwiping();
+        OnGameLost?.Invoke();
+    }
+
+    private void HandleInvalidSwipe()
+    {
+        StartCoroutine(AnimateReturnToStart());
     }
 
     private void QueueSwipe(Tile tile1, Tile tile2, Vector2Int direction, Vector3 previewPosition)

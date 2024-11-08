@@ -225,6 +225,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &274552593
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244288641893051003, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398052137610782984, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
+      propertyPath: m_Name
+      value: GameOverPopup
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
 --- !u!1 &690710963
 GameObject:
   m_ObjectHideFlags: 0
@@ -303,6 +360,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   minSpinTimeBeforeStop: 0.3
+  randomizeBoard: 1
   randomizeSize: 0
   defaultSize: 5
 --- !u!4 &690710965
@@ -645,12 +703,16 @@ MonoBehaviour:
   gameBoard: {fileID: 690710964}
   spinButtonPrefab: {fileID: 2101347540251481537, guid: 08ffd9db875de934d8bc7c9adfaed398, type: 3}
   stopButtonPrefab: {fileID: 2101347540251481537, guid: fdc6a8ce688872c42901d91f4c62b2b2, type: 3}
+  movePanelPrefab: {fileID: 5349234349963327243, guid: 910c4cfc0d10091448fe954e56874471, type: 3}
+  gameOverPanelPrefab: {fileID: 7398052137610782984, guid: 1f77e05c59a34ab46a03d4f504f815e3, type: 3}
   buttonHeightPercentage: 0.1
+  panelHeightPercentage: 0.15
   spinSound: {fileID: 8300000, guid: 20fbcadc10a1c924bb02f4cabf426237, type: 3}
   stopSound: {fileID: 8300000, guid: 31e2a3dd36dfa384ea980b7653e732f0, type: 3}
   initializeSpinSound: {fileID: 8300000, guid: 04ecfb76c569759419bb99aaa0603364, type: 3}
   keepSpinningSound: {fileID: 8300000, guid: f5bbb338da49a804db9e6de912394032, type: 3}
   stopFinalSound: {fileID: 8300000, guid: fc71a302223bd8741b2c7dac9eea6ac3, type: 3}
+  failSound: {fileID: 8300000, guid: 93d223cb44182a34db191569a3856c29, type: 3}
 --- !u!4 &1757183731
 Transform:
   m_ObjectHideFlags: 0
@@ -674,3 +736,4 @@ SceneRoots:
   - {fileID: 1757183731}
   - {fileID: 690710965}
   - {fileID: 221351434}
+  - {fileID: 274552593}

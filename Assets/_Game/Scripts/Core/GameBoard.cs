@@ -23,6 +23,7 @@ public class GameBoard : MonoBehaviour
     [SerializeField] private float minSpinTimeBeforeStop = 1f;
 
     [Header("Board Configuration")]
+    [SerializeField] private bool randomizeBoard = true;
     [SerializeField] private bool randomizeSize = true;
     [SerializeField] private int defaultSize = 5;
 
@@ -32,6 +33,8 @@ public class GameBoard : MonoBehaviour
     public event Action OnSpinAnimationStarted;
     public event Action OnSingleColumnStopped;
     public event Action OnExtrasAppeared;
+    public event Action OnSwipePhaseStarted;
+    public event Action <int> OnSwipe;
 
     private Dictionary<TileType, int> tileTypeCounts;
     private TileType[][] preconstructedColumns;
@@ -56,6 +59,7 @@ public class GameBoard : MonoBehaviour
     private int[] currentStopOffsets;
     private float[] currentPositions;
     private int spinCount = 0;
+    private int remainingSwipes = 0;
 
     public int GridSize => gridSize;
     public bool IsInitialized => isInitialized;
@@ -76,17 +80,17 @@ public class GameBoard : MonoBehaviour
         public bool isFinalizing = false;
         public float finalizingProgress = 0f;
         public TileType[] columnConfiguration;
-        public float perspectiveStrength = 0.3f;    // How strong the perspective effect is
-        public float fadeStrength = 0.3f;           // How much tiles fade at edges
-        public float appearanceProgress = 0f;        // Progress of appearance animation
-        public bool isAppearing = true;             // Whether tiles are still appearing
-        public int lastUsedConfigIndex; // Added to track the last used configuration index
-        public SpinningTile[] extraTiles;           // Separate array for extra tiles that appear
+        public float perspectiveStrength = 0.5f;
+        public float fadeStrength = 0.7f;
+        public float appearanceProgress = 0f;
+        public bool isAppearing = true;
+        public int lastUsedConfigIndex;
+        public SpinningTile[] extraTiles;
     }
     private class ColumnState
     {
-        public TileType[] configuration;  // Fixed tile sequence for this column
-        public List<int> validStopOffsets;  // List of valid stopping positions
+        public TileType[] configuration;
+        public List<int> validStopOffsets;
     }
 
     private class SpinningTile
@@ -127,6 +131,16 @@ public class GameBoard : MonoBehaviour
         columnStates = new ColumnState[gridSize];
         currentStopOffsets = new int[gridSize];
         currentPositions = new float[gridSize];
+        PrecalculateValidStopOffsets();
+        PrecalculateValidStopPositions();
+        TryRandomizeBoard();
+        CreateInitialBoard();
+        isInitialized = true;
+        OnBoardInitialized.Invoke();
+    }
+
+    private void PrecalculateValidStopOffsets()
+    {
         for (int i = 0; i < gridSize; i++)
         {
             columnStates[i] = new ColumnState
@@ -135,10 +149,11 @@ public class GameBoard : MonoBehaviour
                 validStopOffsets = new List<int>(boardGenerator.ValidStopOffsets.Select(offset => offset[i]))
             };
         }
+    }
 
-        PrecalculateValidStopPositions();
-
-        /* Randomize Board
+    private void TryRandomizeBoard()
+    {
+        if (randomizeBoard)
         {
             currentStopOffsets = GetRandomValidStopPosition();
             for (int i = 0; i < gridSize; i++)
@@ -146,11 +161,6 @@ public class GameBoard : MonoBehaviour
                 currentPositions[i] = currentStopOffsets[i];
             }
         }
-        */
-
-        CreateInitialBoard();
-        isInitialized = true;
-        OnBoardInitialized?.Invoke();
     }
 
     public int GetMinimumMovesToMatch()
@@ -158,9 +168,23 @@ public class GameBoard : MonoBehaviour
         return MinMovesSolver.FindMinimumMovesToMatch(this);
     }
 
+    public int GetRemainingMoves()
+    { return remainingSwipes; }
+
+    public void StartSwipePhase()
+    {
+        remainingSwipes = GetMinimumMovesToMatch();
+        OnSwipePhaseStarted.Invoke();
+    }
+
+    public void AfterSwipe()
+    {
+        remainingSwipes--;
+        OnSwipe?.Invoke(remainingSwipes);
+    }
+
     private int[] GetRandomValidStopPosition()
     {
-        // Fetch a random valid stop offset from the preconstructed list
         if (boardGenerator.ValidStopOffsets.Count == 0)
         {
             return new int[gridSize];
@@ -180,34 +204,23 @@ public class GameBoard : MonoBehaviour
             boardHeight / 2f - tileSize / 2f,
             0
         );
-
-        // Create tiles for initial board state
         for (int x = 0; x < gridSize; x++)
         {
             for (int y = 0; y < gridSize; y++)
             {
-                // Calculate tile position
                 Vector3 tilePosition = startPos + new Vector3(
                     x * (tileSize + tileSpacing),
                     y * (tileSize + tileSpacing),
                     0
                 );
-
-                // Create tile object
                 GameObject tileObj = Instantiate(tilePrefab, tilePosition, Quaternion.identity, transform);
                 tileObj.name = $"Tile ({x}, {y})";
-
-                // Scale tile to desired size
                 float spriteSize = tilePrefab.GetComponent<SpriteRenderer>().bounds.size.x;
                 float scaleFactor = tileSize / spriteSize;
                 tileObj.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
-
-                // Initialize tile component
                 Tile tile = tileObj.GetComponent<Tile>();
                 tile.gridPosition = new Vector2Int(x, y);
                 board[x, y] = tile;
-
-                // Set initial tile type based on column configuration
                 int configIndex = (currentStopOffsets[x] + y) % columnStates[x].configuration.Length;
                 TileType tileType = columnStates[x].configuration[configIndex];
                 tile.SetTileType(tileType);
@@ -221,7 +234,6 @@ public class GameBoard : MonoBehaviour
         {
             yield break;
         }
-
         OnSpinStarted?.Invoke();
         if (spinCount == 0)
         {
@@ -283,15 +295,12 @@ public class GameBoard : MonoBehaviour
         {
             yield return null;
         }
-
-        // Gradually decelerate each column to the target stop offset
         for (int i = 0; i < gridSize; i++)
         {
             SpinningColumn spinningColumn = spinningColumns[i];
             spinningColumn.isStoppingRequested = true;
             yield return StartCoroutine(SmoothDecelerateAndAlignColumn(i, spinningColumn));
         }
-
         stopSequenceCoroutine = null;
         isStoppingSequence = false;
         isSpinning = false;
@@ -301,22 +310,16 @@ public class GameBoard : MonoBehaviour
     {
         float decelerationTimer = decelerationTime;
         float initialSpeed = spinningColumn.currentSpeed;
-
         while (decelerationTimer > 0)
         {
             decelerationTimer -= Time.deltaTime;
             float progress = 1f - (decelerationTimer / decelerationTime);
             float speedProgress = 1f - Mathf.SmoothStep(0f, 1f, progress);
             spinningColumn.currentSpeed = initialSpeed * speedProgress;
-
-            // Align to target stop offset during deceleration
             AlignColumnForStop(column, spinningColumn);
             UpdateSpinningColumn(column, spinningColumn);
-
             yield return null;
         }
-
-        // Ensure final alignment to the target stop offset
         spinningColumn.currentSpeed = 0;
         AlignColumnForStop(column, spinningColumn);
         UpdateSpinningColumn(column, spinningColumn);
@@ -327,11 +330,7 @@ public class GameBoard : MonoBehaviour
         float currentOffset = currentPositions[column];
         float targetOffset = currentStopOffsets[column];
         float configLength = spinningColumn.columnConfiguration.Length;
-
-        // Calculate shortest path to target (considering wrap-around)
         float diff = targetOffset - currentOffset;
-
-        // Adjust for wrap-around
         if (Mathf.Abs(diff) > configLength / 2)
         {
             if (diff > 0)
@@ -339,38 +338,27 @@ public class GameBoard : MonoBehaviour
             else
                 diff += configLength;
         }
-
-        // Smoothly move towards target
         float alignmentSpeed = maxSpinSpeed * 0.1f;
         float step = alignmentSpeed * Time.deltaTime;
         float newOffset = currentOffset + Mathf.Clamp(diff, -step, step);
-
-        // Ensure we stay within bounds
         while (newOffset >= configLength)
             newOffset -= configLength;
         while (newOffset < 0)
             newOffset += configLength;
-
-        // Update position
         currentPositions[column] = newOffset;
     }
 
     private SpinningTile GetClosestTileToPosition(SpinningColumn column, float targetPosition)
     {
         if (column == null || column.tiles == null) return null;
-
-        // First try to find a grid tile at this position
         var gridTile = column.tiles
             .Where(t => t != null && t.isGridTile)
             .OrderBy(t => Mathf.Abs(t.currentPosition - targetPosition))
             .FirstOrDefault();
-
         if (gridTile != null && Mathf.Abs(gridTile.currentPosition - targetPosition) < (tileSize + tileSpacing) * 0.5f)
         {
             return gridTile;
         }
-
-        // If no grid tile found, look through all tiles
         return column.tiles
             .Concat(column.extraTiles)
             .Where(t => t != null)
@@ -392,25 +380,16 @@ public class GameBoard : MonoBehaviour
             isAppearing = true,
             columnConfiguration = columnStates[column].configuration
         };
-
         Vector3 basePosition = GetTileBasePosition(new Vector2Int(column, 0));
         float spacing = tileSize + tileSpacing;
-
-        // Start from current position
         float startPosition = currentPositions[column];
-
-        // Initialize main grid tiles - matching current visible state
         for (int i = 0; i < gridSize; i++)
         {
             GameObject tileObj = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, transform);
             tileObj.name = $"SpinningTile_{column}_{i}";
-
             float yOffset = i * spacing;
             tileObj.transform.position = basePosition + new Vector3(0, yOffset, 0);
-
-            // Get the current tile type from the board
             TileType currentType = board[column, i].GetCurrentType();
-
             spinningColumn.tiles[i] = new SpinningTile
             {
                 visualObject = tileObj,
@@ -421,7 +400,6 @@ public class GameBoard : MonoBehaviour
                 alpha = 1f,
                 isGridTile = true
             };
-
             SpriteRenderer spriteRenderer = tileObj.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {
@@ -431,17 +409,13 @@ public class GameBoard : MonoBehaviour
                 spriteRenderer.sprite = currentType.sprite;
             }
         }
-
-        // Initialize extra tiles
         for (int i = 0; i < spinningColumn.extraTiles.Length; i++)
         {
             GameObject tileObj = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, transform);
             tileObj.name = $"ExtraTile_{column}_{i}";
-
             float yOffset = (i < spinningColumn.extraTiles.Length / 2) ?
                 -spacing * (i + 1) :
                 spacing * (gridSize + (i - spinningColumn.extraTiles.Length / 2));
-
             int configIndex = (int)startPosition;
             if (i < spinningColumn.extraTiles.Length / 2)
             {
@@ -453,9 +427,7 @@ public class GameBoard : MonoBehaviour
                 configIndex = ((int)startPosition + gridSize + (i - spinningColumn.extraTiles.Length / 2))
                     % spinningColumn.columnConfiguration.Length;
             }
-
             TileType tileType = spinningColumn.columnConfiguration[configIndex];
-
             spinningColumn.extraTiles[i] = new SpinningTile
             {
                 visualObject = tileObj,
@@ -466,7 +438,6 @@ public class GameBoard : MonoBehaviour
                 alpha = 0f,
                 isGridTile = false
             };
-
             SpriteRenderer spriteRenderer = tileObj.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {
@@ -478,45 +449,30 @@ public class GameBoard : MonoBehaviour
                 spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
             }
         }
-
         return spinningColumn;
     }
-
 
     private void UpdateSpinningColumn(int column, SpinningColumn spinningColumn)
     {
         if (spinningColumn == null) return;
-
         float deltaMovement = spinningColumn.currentSpeed * Time.deltaTime;
         float spacing = tileSize + tileSpacing;
         Vector3 basePosition = GetTileBasePosition(new Vector2Int(column, 0));
-
         currentPositions[column] -= deltaMovement;
-
-        // Keep position within bounds of configuration length
         while (currentPositions[column] < 0)
         {
             currentPositions[column] += spinningColumn.columnConfiguration.Length;
         }
-
-        // Update all tiles
         SpinningTile[] allTiles = spinningColumn.tiles.Concat(spinningColumn.extraTiles).ToArray();
         foreach (var tile in allTiles)
         {
             if (tile == null || tile.visualObject == null) continue;
-
-            // Update position
             tile.currentPosition -= deltaMovement;
-
-            // Handle wrapping
             float totalHeight = spacing * (spinningColumn.tiles.Length + spinningColumn.extraTiles.Length);
             float wrapThreshold = -spacing * 1.5f;
-
             if (tile.currentPosition < wrapThreshold)
             {
                 tile.currentPosition += totalHeight;
-
-                // Calculate new config index based on current position to maintain sequence
                 int positionIndex = Mathf.FloorToInt(currentPositions[column]);
                 int offset = Mathf.FloorToInt(tile.currentPosition / spacing);
                 int newConfigIndex = (positionIndex + offset + spinningColumn.columnConfiguration.Length)
@@ -531,17 +487,12 @@ public class GameBoard : MonoBehaviour
                     spriteRenderer.sprite = tile.tileType.sprite;
                 }
             }
-
-            // Visual effects
             float distanceFromCenter = Mathf.Abs(tile.currentPosition - (gridSize * spacing / 2f));
             float maxDistance = gridSize * spacing;
             float perspectiveScale = Mathf.Lerp(1f, 0.3f, (distanceFromCenter / maxDistance) * spinningColumn.perspectiveStrength);
             float fadeAlpha = Mathf.Lerp(1f, 0f, (distanceFromCenter / maxDistance) * spinningColumn.fadeStrength);
-
             tile.visualScale = perspectiveScale;
             tile.alpha = fadeAlpha;
-
-            // Update transform
             tile.visualObject.transform.position = basePosition + new Vector3(0, tile.currentPosition, 0);
             var visualSpriteRenderer = tile.visualObject.GetComponent<SpriteRenderer>();
             if (visualSpriteRenderer != null)
@@ -682,6 +633,7 @@ public class GameBoard : MonoBehaviour
 
     private IEnumerator SpinSequence()
     {
+        OnExtrasAppeared.Invoke();
         spinningColumns = new SpinningColumn[gridSize];
         for (int x = 0; x < gridSize; x++)
         {
@@ -694,7 +646,6 @@ public class GameBoard : MonoBehaviour
                 }
             }
         }
-        OnExtrasAppeared.Invoke();
         for (int x = 0; x < gridSize; x++)
         {
             StartCoroutine(AnimateExtraTilesAppearance(x));
@@ -710,12 +661,10 @@ public class GameBoard : MonoBehaviour
             StartCoroutine(SpinColumn(x));
             yield return new WaitForSeconds(columnStartDelay);
         }
-        // Wait for full speed
         while (!AreAllColumnsAtFullSpeed())
         {
             yield return null;
         }
-
         isStartingUp = false;
         if (earlyStopRequested)
         {
@@ -734,29 +683,20 @@ public class GameBoard : MonoBehaviour
         SpinningColumn spinningColumn = spinningColumns[column];
         float appearanceDuration = 0.5f;
         float timer = 0f;
-
         while (timer < appearanceDuration)
         {
             timer += Time.deltaTime;
             float progress = timer / appearanceDuration;
             spinningColumn.appearanceProgress = Mathf.SmoothStep(0f, 1f, progress);
-
-            // Animate extra tiles
             foreach (var tile in spinningColumn.extraTiles)
             {
                 if (tile == null || tile.visualObject == null) continue;
-
-                // Calculate perspective effect
                 float distanceFromCenter = Mathf.Abs(tile.currentPosition - (gridSize * (tileSize + tileSpacing) / 2f));
                 float maxDistance = gridSize * (tileSize + tileSpacing);
                 float perspectiveScale = Mathf.Lerp(1f, 0.7f, (distanceFromCenter / maxDistance) * spinningColumn.perspectiveStrength);
                 float fadeAlpha = Mathf.Lerp(1f, 0f, (distanceFromCenter / maxDistance) * spinningColumn.fadeStrength);
-
-                // Apply appearance animation
                 tile.visualScale = Mathf.Lerp(0.7f, perspectiveScale, spinningColumn.appearanceProgress);
                 tile.alpha = Mathf.Lerp(0f, fadeAlpha, spinningColumn.appearanceProgress);
-
-                // Update visual properties
                 SpriteRenderer spriteRenderer = tile.visualObject.GetComponent<SpriteRenderer>();
                 if (spriteRenderer != null)
                 {
@@ -769,10 +709,8 @@ public class GameBoard : MonoBehaviour
                     );
                 }
             }
-
             yield return null;
         }
-
         spinningColumn.isAppearing = false;
     }
 
@@ -780,8 +718,6 @@ public class GameBoard : MonoBehaviour
     {
         SpinningColumn spinningColumn = spinningColumns[column];
         float accelerationTimer = 0f;
-
-        // Acceleration phase
         while (accelerationTimer < accelerationTime)
         {
             accelerationTimer += Time.deltaTime;
@@ -790,11 +726,8 @@ public class GameBoard : MonoBehaviour
             UpdateSpinningColumn(column, spinningColumn);
             yield return null;
         }
-
         spinningColumn.hasReachedFullSpeed = true;
         startupColumnsRemaining--;
-
-        // Calculate target configuration when stop is requested
         float spacing = tileSize + tileSpacing;
         float configLength = columnStates[column].configuration.Length;
         Dictionary<SpinningTile, TileType> targetTypes = new Dictionary<SpinningTile, TileType>();
@@ -901,10 +834,10 @@ public class GameBoard : MonoBehaviour
             UpdateSpinningColumnWithTransition(column, spinningColumn, progress);
             yield return null;
         }
+        OnSingleColumnStopped.Invoke();
         currentPositions[column] = targetPosition % configLength;
         UpdateSpinningColumnWithTransition(column, spinningColumn, 1f);
         yield return StartCoroutine(TransitionToFinalState(column, spinningColumn));
-        OnSingleColumnStopped.Invoke();
         FinalizeColumn(column);
         bool allStopped = true;
         for (int x = 0; x < gridSize; x++)
@@ -920,30 +853,22 @@ public class GameBoard : MonoBehaviour
             isSpinning = false;
             spinningColumns = null;
             OnSpinComplete?.Invoke();
-            Debug.Log(GetMinimumMovesToMatch());
         }
     }
 
     private void UpdateSpinningColumnWithTransition(int column, SpinningColumn spinningColumn, float transitionProgress)
     {
         if (spinningColumn == null) return;
-
         float spacing = tileSize + tileSpacing;
         Vector3 basePosition = GetTileBasePosition(new Vector2Int(column, 0));
-
-        // Update all tiles
         SpinningTile[] allTiles = spinningColumn.tiles.Concat(spinningColumn.extraTiles).ToArray();
         foreach (var tile in allTiles)
         {
             if (tile == null || tile.visualObject == null) continue;
-
-            // Calculate target configuration based on current position
             float normalizedPosition = tile.currentPosition / spacing;
             int targetIndex = Mathf.RoundToInt(normalizedPosition);
             int configIndex = (currentStopOffsets[column] + targetIndex + columnStates[column].configuration.Length)
                 % columnStates[column].configuration.Length;
-
-            // Update tile type if needed
             TileType targetType = columnStates[column].configuration[configIndex];
             if (tile.tileType != targetType)
             {
@@ -954,17 +879,12 @@ public class GameBoard : MonoBehaviour
                     spriteRenderer.sprite = targetType.sprite;
                 }
             }
-
-            // Visual effects
             float distanceFromCenter = Mathf.Abs(tile.currentPosition - (gridSize * spacing / 2f));
             float maxDistance = gridSize * spacing;
             float perspectiveScale = Mathf.Lerp(1f, 0.7f, (distanceFromCenter / maxDistance) * spinningColumn.perspectiveStrength);
             float fadeAlpha = Mathf.Lerp(1f, 0f, (distanceFromCenter / maxDistance) * spinningColumn.fadeStrength);
-
             tile.visualScale = perspectiveScale;
             tile.alpha = fadeAlpha;
-
-            // Update transform
             tile.visualObject.transform.position = basePosition + new Vector3(0, tile.currentPosition, 0);
             var visualSpriteRenderer = tile.visualObject.GetComponent<SpriteRenderer>();
             if (visualSpriteRenderer != null)
@@ -1029,7 +949,6 @@ public class GameBoard : MonoBehaviour
                     }
                 }
             }
-
             yield return null;
         }
     }
@@ -1042,6 +961,7 @@ public class GameBoard : MonoBehaviour
         }
         return null;
     }
+
     private Vector3 GetTileBasePosition(Vector2Int gridPos)
     {
         float boardWidth = gridSize * tileSize + (gridSize - 1) * tileSpacing;
