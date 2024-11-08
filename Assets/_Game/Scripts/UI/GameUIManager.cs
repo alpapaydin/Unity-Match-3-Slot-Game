@@ -28,6 +28,7 @@ public class GameUIManager : MonoBehaviour
     private GameButton stopButton;
     private Camera mainCamera;
     private MovePanel currentPanel;
+    private GameObject gameOverObj;
     private bool isPanelOpen;
 
     private void Awake()
@@ -74,10 +75,23 @@ public class GameUIManager : MonoBehaviour
     private IEnumerator ShowGameOverPanel()
     {
         yield return new WaitForSeconds(2f);
+        currentPanel.SetFinal();
         if (gameOverPanelPrefab != null)
         {
-            Instantiate(gameOverPanelPrefab, transform);
+            gameOverObj = Instantiate(gameOverPanelPrefab, transform);
+            ResetPopup gameOver = gameOverObj.GetComponent<ResetPopup>();
+            if (gameOver != null)
+            {
+                gameOver.OnRestartRequested += RestartGame;
+            }
         }
+    }
+
+    private void RestartGame()
+    {
+        Destroy(gameOverObj);
+        ClosePanel();
+        gameBoard.ResetGame();
     }
 
     private void InitializeSpinSound()

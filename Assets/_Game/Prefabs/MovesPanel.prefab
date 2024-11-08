@@ -108,7 +108,7 @@ MonoBehaviour:
   textSortingOrder: 0
   panelSortingLayer: UI
   textSortingLayer: UI
-  startColor: {r: 1, g: 0, b: 0, a: 1}
+  startColor: {r: 1, g: 0.047058824, b: 0.23137255, a: 1}
   endColor: {r: 1, g: 1, b: 1, a: 1}
   gradientDuration: 0.5
   pingPong: 1

@@ -114,6 +114,12 @@ public class MovePanel : MonoBehaviour
         }
     }
 
+    public void SetFinal()
+    {
+        StopCoroutine(colorAnimationCoroutine);
+        panelText.color = startColor;
+    }
+
     public void SlideDown(System.Action onComplete = null)
     {
         onSlideComplete = onComplete;

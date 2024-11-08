@@ -16,6 +16,7 @@ public class GameBoard : MonoBehaviour
     [SerializeField] private float maxSpinSpeed = 20f;
     [SerializeField] private float accelerationTime = 0.2f;
     [SerializeField] private float decelerationTime = 1.5f;
+    [SerializeField] private float decelerationIncrease = 0.3f;
     [SerializeField] private float columnStartDelay = 0.1f;
     [SerializeField] private AnimationCurve spinSpeedCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -320,6 +321,7 @@ public class GameBoard : MonoBehaviour
             UpdateSpinningColumn(column, spinningColumn);
             yield return null;
         }
+        decelerationTime += decelerationIncrease;
         spinningColumn.currentSpeed = 0;
         AlignColumnForStop(column, spinningColumn);
         UpdateSpinningColumn(column, spinningColumn);

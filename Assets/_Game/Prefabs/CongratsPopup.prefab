@@ -79,6 +79,7 @@ MonoBehaviour:
   winSound: {fileID: 8300000, guid: 012755eb2c661b245a70737dae9b4d61, type: 3}
   letterSound: {fileID: 8300000, guid: 2932261e09f41f647a039cd5ce795fac, type: 3}
   fireworkSound: {fileID: 8300000, guid: 94aa3d2d956029f45aec077967341e8d, type: 3}
+  thudSound: {fileID: 8300000, guid: d06ee709c84dd7d48afcc9461e52f44e, type: 3}
   startPitch: 0.8
   endPitch: 1.2
   pitchVariation: 0.3

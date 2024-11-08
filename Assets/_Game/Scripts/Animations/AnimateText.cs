@@ -23,6 +23,7 @@ public class TextAnimator : MonoBehaviour
     [SerializeField] private AudioClip winSound;
     [SerializeField] private AudioClip letterSound;
     [SerializeField] private AudioClip fireworkSound;
+    [SerializeField] private AudioClip thudSound;
     [SerializeField] private float startPitch = 0.8f;
     [SerializeField] private float endPitch = 1.2f;
     [SerializeField] private float pitchVariation = 0.1f;
@@ -240,6 +241,7 @@ public class TextAnimator : MonoBehaviour
         }
         List<List<char>> lines = CalculateLineBreaks(textToAnimate, out totalTextSize);
         CreateBackground();
+        audioSource.PlayOneShot(thudSound);
         yield return StartCoroutine(StampAnimation());
         yield return new WaitForSeconds(delayBeforeText);
         yield return StartCoroutine(AnimateText());

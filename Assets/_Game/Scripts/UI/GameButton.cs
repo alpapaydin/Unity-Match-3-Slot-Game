@@ -5,6 +5,7 @@ using System.Collections;
 public class GameButton : MonoBehaviour
 {
     [Header("Button Settings")]
+    [SerializeField] private bool startEnabled = false;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
     [SerializeField] private Color disabledColor = new Color(0.5f, 0.5f, 0.5f, 1f);
@@ -36,7 +37,6 @@ public class GameButton : MonoBehaviour
     [SerializeField] private float idleRotationAmount = 3f;
     [SerializeField] private bool useIdleRotation = true;
 
-    // References
     private SpriteRenderer spriteRenderer;
     private Vector3 originalTextPosition;
     private Vector3 originalTextScale;
@@ -44,6 +44,8 @@ public class GameButton : MonoBehaviour
     private Coroutine colorAnimationCoroutine;
     private Coroutine bounceAnimationCoroutine;
     private Coroutine idleAnimationCoroutine;
+
+    public System.Action OnClick;
 
     public string ButtonText
     {
@@ -54,8 +56,7 @@ public class GameButton : MonoBehaviour
             UpdateButtonText();
         }
     }
-
-    // State
+    
     private bool isInteractable = true;
     public bool IsInteractable
     {
@@ -81,9 +82,6 @@ public class GameButton : MonoBehaviour
         }
     }
 
-    // Events
-    public System.Action OnClick;
-
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -102,6 +100,11 @@ public class GameButton : MonoBehaviour
 
         InitializeText();
         UpdateButtonText();
+        if (startEnabled) {
+            OnEnable();
+            spriteRenderer.color = normalColor;
+        }
+        
     }
 
     private void OnEnable()
@@ -276,11 +279,6 @@ public class GameButton : MonoBehaviour
         float requiredHeight = textHeight + padding.y * 2;
         SetSize(requiredWidth, requiredHeight);
         Vector3 centerPosition = new Vector3(0, 0, -0.1f);
-        if (textMesh != null)
-        {
-            //textMesh.transform.localPosition = centerPosition;
-            //originalTextPosition = centerPosition;
-        }
     }
 
     private void OnMouseDown()
