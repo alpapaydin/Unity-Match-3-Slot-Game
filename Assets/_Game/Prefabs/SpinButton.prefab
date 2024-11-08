@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 4385828009278549096}
   - component: {fileID: 8481949687948515904}
   m_Layer: 0
-  m_Name: ButtonPrefab
+  m_Name: SpinButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

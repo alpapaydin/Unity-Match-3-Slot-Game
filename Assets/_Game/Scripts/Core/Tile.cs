@@ -9,8 +9,8 @@ public class TileType
 
 public class Tile : MonoBehaviour
 {
-    private SpriteRenderer spriteRenderer;
     public Vector2Int gridPosition { get; set; }
+    private SpriteRenderer spriteRenderer;
     private TileType currentType;
 
     private void Awake()

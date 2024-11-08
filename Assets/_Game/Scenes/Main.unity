@@ -119,6 +119,112 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &221351432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 221351434}
+  - component: {fileID: 221351433}
+  m_Layer: 0
+  m_Name: SwipeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &221351433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221351432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d44a1a5bc4409a4ca0cc4249ee71ebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minSwipeDistance: 0.6
+  swipeAnimationDuration: 1
+  returnAnimationDuration: 0.4
+  swipeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  returnCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxQueuedSwipes: 3
+  congratulationsPopupPrefab: {fileID: 6722658083946007328, guid: c7fb29231daeb21428b4ce614fa37aaa, type: 3}
+  popupDuration: 5.5
+  popupSpawnPosition: {x: 0, y: 0, z: 0}
+  maxDragDistance: 1
+  dragAlpha: 0.7
+  gameBoard: {fileID: 690710964}
+  uiManager: {fileID: 1757183730}
+  tilePrefab: {fileID: 3587910118911784266, guid: 307c15c89cc079d4496bd263ee903131, type: 3}
+  swipeSound: {fileID: 8300000, guid: d3dc4eb188eb7444e8ff89a0bb55f6c7, type: 3}
+  matchSound: {fileID: 8300000, guid: 8d7b568217278674688f1a5cfe9e73d2, type: 3}
+--- !u!4 &221351434
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221351432}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.3029784, y: -3.0362043, z: 0.07306192}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &690710963
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,6 +235,8 @@ GameObject:
   m_Component:
   - component: {fileID: 690710965}
   - component: {fileID: 690710964}
+  - component: {fileID: 690710966}
+  - component: {fileID: 690710967}
   m_Layer: 0
   m_Name: GameBoard
   m_TagString: Untagged
@@ -149,21 +257,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileTypes:
-  - name: Discord
-    sprite: {fileID: -1658927225162452868, guid: d0ee358705795574ba2526a00d8a5874, type: 3}
-  - name: Spoti
-    sprite: {fileID: 2009260699395534658, guid: 032b389569236b147ac301a1442c8ed0, type: 3}
-  - name: Steam
-    sprite: {fileID: 7414261224600783322, guid: 976bba5393b5b08458ee95fbbbf1b00a, type: 3}
   - name: Wp
     sprite: {fileID: -967490360712845023, guid: 0afa02efb0b8bfb4faf5096bb1c4c583, type: 3}
+  - name: Dc
+    sprite: {fileID: -1658927225162452868, guid: d0ee358705795574ba2526a00d8a5874, type: 3}
   - name: Yt
     sprite: {fileID: -2060017835748981205, guid: 9d973daea1644b9478608ec93f72b36f, type: 3}
   - name: Google
     sprite: {fileID: -7666856445780967580, guid: 93f9f573874d6ac40912e71a711c0829, type: 3}
+  - name: Spoti
+    sprite: {fileID: 2009260699395534658, guid: 032b389569236b147ac301a1442c8ed0, type: 3}
   - name: Insta
     sprite: {fileID: -8999343754290144741, guid: 68afdb4400c286846a58e11548450a08, type: 3}
+  - name: Steam
+    sprite: {fileID: 7414261224600783322, guid: 976bba5393b5b08458ee95fbbbf1b00a, type: 3}
   tilePrefab: {fileID: 3587910118911784266, guid: 307c15c89cc079d4496bd263ee903131, type: 3}
+  idleAnimation: {fileID: 690710966}
   padding: 0.03
   maxSpinSpeed: 10
   accelerationTime: 0.7
@@ -193,9 +302,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minSpinTimeBeforeStop: 1
+  minSpinTimeBeforeStop: 0.3
   randomizeSize: 0
-  defaultSize: 7
+  defaultSize: 5
 --- !u!4 &690710965
 Transform:
   m_ObjectHideFlags: 0
@@ -211,6 +320,162 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &690710966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690710963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e984b9882c905634bbd6ec43440ea11e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounceAmplitude: 0.25
+  bounceFrequency: 1
+  columnDelay: 0.1
+  bounceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1.1166687
+      value: 0.2311325
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  waveSpeed: 8
+  waveAmplitude: 0.3
+  scalePulseAmount: 0.11
+  scalePulseSpeed: 5
+  fadeInDuration: 1
+  fadeOutDuration: 1
+  transitionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &690710967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690710963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 996f96ce59dce2e4aa3ce0f5f7dc2288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  matchAnimDuration: 2
+  pulseCount: 4
+  minScale: 0.7
+  maxScale: 1.5
+  glowColor: {r: 1, g: 0.92156863, b: 0.39607844, a: 1}
+  glowIntensity: 2
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  intensityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.2
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -2
+      outSlope: -2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  delayBetweenTiles: 0.1
+  orderByPosition: 1
+  sparkleParticlePrefab: {fileID: 3936917529675800128, guid: c1ab9e0e9ec539444bd0d094debb6dc9, type: 3}
 --- !u!1 &974026453
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,9 +643,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameBoard: {fileID: 690710964}
-  spinButtonPrefab: {fileID: 2101347540251481537, guid: 08e2c09e9447db54ea9473db4ef44db6, type: 3}
-  stopButtonPrefab: {fileID: 2101347540251481537, guid: 08e2c09e9447db54ea9473db4ef44db6, type: 3}
+  spinButtonPrefab: {fileID: 2101347540251481537, guid: 08ffd9db875de934d8bc7c9adfaed398, type: 3}
+  stopButtonPrefab: {fileID: 2101347540251481537, guid: fdc6a8ce688872c42901d91f4c62b2b2, type: 3}
   buttonHeightPercentage: 0.1
+  spinSound: {fileID: 8300000, guid: 20fbcadc10a1c924bb02f4cabf426237, type: 3}
+  stopSound: {fileID: 8300000, guid: 31e2a3dd36dfa384ea980b7653e732f0, type: 3}
+  initializeSpinSound: {fileID: 8300000, guid: 04ecfb76c569759419bb99aaa0603364, type: 3}
+  keepSpinningSound: {fileID: 8300000, guid: f5bbb338da49a804db9e6de912394032, type: 3}
+  stopFinalSound: {fileID: 8300000, guid: fc71a302223bd8741b2c7dac9eea6ac3, type: 3}
 --- !u!4 &1757183731
 Transform:
   m_ObjectHideFlags: 0
@@ -401,5 +671,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 974026456}
-  - {fileID: 690710965}
   - {fileID: 1757183731}
+  - {fileID: 690710965}
+  - {fileID: 221351434}

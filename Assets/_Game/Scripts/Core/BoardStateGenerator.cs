@@ -3,10 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// Determines board configurations in a more deterministic manner,
-/// ensuring valid configurations without repeated attempts.
-/// </summary>
 public class DeterministicBoardStateGenerator
 {
     private readonly int gridSize;
@@ -16,14 +12,10 @@ public class DeterministicBoardStateGenerator
     private readonly List<TileType[]> possibleBoards;
     private readonly List<int[]> possibleStopOffsets;
     private readonly System.Random random;
-
     public TileType[][] ColumnConfigurations { get; private set; }
     public List<int[]> ValidStopOffsets => possibleStopOffsets;
 
-    /// <summary>
-    /// Constructor for DeterministicBoardStateGenerator.
-    /// </summary>
-    public DeterministicBoardStateGenerator(int gridSize, TileType[] tileTypes, int minTilesPerType = 3, int columnLength = 30)
+    public DeterministicBoardStateGenerator(int gridSize, TileType[] tileTypes, int minTilesPerType = 3, int columnLength = 32)
     {
         this.gridSize = gridSize;
         this.tileTypes = tileTypes;
@@ -38,9 +30,6 @@ public class DeterministicBoardStateGenerator
         PreconstructValidBoardConfigurations();
     }
 
-    /// <summary>
-    /// Validates parameters before proceeding with board generation.
-    /// </summary>
     private void ValidateParameters()
     {
         if (gridSize <= 0)
@@ -63,9 +52,6 @@ public class DeterministicBoardStateGenerator
         }
     }
 
-    /// <summary>
-    /// Generate a fixed column configuration using a deterministic pattern.
-    /// </summary>
     private void GenerateFixedColumnConfigurations()
     {
         ColumnConfigurations = new TileType[gridSize][];
@@ -75,10 +61,6 @@ public class DeterministicBoardStateGenerator
         }
     }
 
-    /// <summary>
-    /// Generates a deterministic sequence for each column.
-    /// Ensures no consecutive three matches in rows or columns.
-    /// </summary>
     private TileType[] GenerateDeterministicSequence(int col)
     {
         TileType[] sequence = new TileType[columnLength];
@@ -91,14 +73,10 @@ public class DeterministicBoardStateGenerator
         for (int i = 0; i < columnLength; i++)
         {
             var availableTypes = new List<TileType>(tileTypes);
-
-            // Avoid three in a row within the column
             if (i >= 2 && sequence[i - 1] == sequence[i - 2])
             {
                 availableTypes.Remove(sequence[i - 1]);
             }
-
-            // Avoid creating a row match with neighboring columns
             if (col > 0 && i < gridSize)
             {
                 TileType leftNeighbor = ColumnConfigurations[col - 1][i];
@@ -107,23 +85,19 @@ public class DeterministicBoardStateGenerator
                     availableTypes.Remove(leftNeighbor);
                 }
             }
-
-            // Avoid placing a tile type that exceeds the minimum count excessively
             TileType selectedType = availableTypes.OrderBy(t => tileCounts[t]).First();
             sequence[i] = selectedType;
             tileCounts[selectedType]++;
         }
-
         return sequence;
     }
 
-    /// <summary>
-    /// Preconstructs a list of valid board configurations that meet all requirements.
-    /// </summary>
     private void PreconstructValidBoardConfigurations()
     {
-        int maxBoards = 100; // Limit to 100 possible board states
-        for (int i = 0; i < maxBoards; i++)
+        int maxAttempts = 1000;
+        int attempts = 0;
+
+        while (attempts < maxAttempts && possibleStopOffsets.Count < 100)
         {
             int[] offsets = new int[gridSize];
             for (int j = 0; j < gridSize; j++)
@@ -135,17 +109,28 @@ public class DeterministicBoardStateGenerator
             {
                 possibleStopOffsets.Add(offsets);
             }
+            attempts++;
         }
 
-        Debug.Log($"Preconstructed {possibleStopOffsets.Count} valid stop positions.");
+        if (possibleStopOffsets.Count == 0)
+        {
+            Debug.LogWarning("Could not generate any valid board configurations. Consider relaxing constraints.");
+        }
+        else
+        {
+            Debug.Log($"Preconstructed {possibleStopOffsets.Count} valid stop positions after {attempts} attempts.");
+        }
     }
 
-    /// <summary>
-    /// Checks if a set of column offsets creates a valid board state.
-    /// </summary>
     private bool IsValidStopPosition(int[] offsets)
     {
-        // Check for horizontal matches
+        if (!IsValidMatchPattern(offsets))
+            return false;
+        return HasMinimumTilesPerType(offsets);
+    }
+
+    private bool IsValidMatchPattern(int[] offsets)
+    {
         for (int y = 0; y < gridSize; y++)
         {
             for (int x = 0; x < gridSize - 2; x++)
@@ -158,8 +143,6 @@ public class DeterministicBoardStateGenerator
                     return false;
             }
         }
-
-        // Check for vertical matches
         for (int x = 0; x < gridSize; x++)
         {
             for (int y = 0; y < gridSize - 2; y++)
@@ -172,13 +155,27 @@ public class DeterministicBoardStateGenerator
                     return false;
             }
         }
-
         return true;
     }
 
-    /// <summary>
-    /// Gets a tile type at a specific position in a column's sequence.
-    /// </summary>
+    private bool HasMinimumTilesPerType(int[] offsets)
+    {
+        var tileCounts = new Dictionary<TileType, int>();
+        foreach (var type in tileTypes)
+        {
+            tileCounts[type] = 0;
+        }
+        for (int x = 0; x < gridSize; x++)
+        {
+            for (int y = 0; y < gridSize; y++)
+            {
+                TileType tileType = GetTileAtOffset(x, offsets[x], y);
+                tileCounts[tileType]++;
+            }
+        }
+        return tileCounts.All(kvp => kvp.Value >= minTilesPerType);
+    }
+
     public TileType GetTileAtOffset(int column, int offset, int row)
     {
         int index = (offset + row) % columnLength;

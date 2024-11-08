@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7398052137610782984
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1244288641893051003}
+  - component: {fileID: 6722658083946007328}
+  - component: {fileID: 8483912242539970690}
+  m_Layer: 0
+  m_Name: CongratsPopup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1244288641893051003
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398052137610782984}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6722658083946007328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398052137610782984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e13a281633a1334b8802932982db1ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backgroundSprite: {fileID: 0}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.5}
+  fadeDuration: 1
+  sortingLayerName: UI
+  sortingOrder: 100
+  useCustomBackground: 0
+  customBackgroundSprite: {fileID: 0}
+  showOnStart: 1
+--- !u!114 &8483912242539970690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7398052137610782984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51945a4236343304b990f24db294ca52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textToAnimate: "Good\n Job!"
+  letterPrefab: {fileID: 3741290063295756243, guid: 7eb68697aab0cff4ca5f9e5db238a345, type: 3}
+  lineHeight: 12
+  letterSpacing: 5.5
+  maxWidth: 10
+  backgroundColor: {r: 0.047169805, g: 0.62449557, b: 1, a: 1}
+  backgroundBorderColor: {r: 1, g: 0.95460284, b: 0.2783019, a: 1}
+  backgroundPadding: 0
+  borderWidth: 0.3
+  cornerRadius: 0
+  backgroundScaleMultiplier: {x: 1, y: 0.5}
+  winSound: {fileID: 8300000, guid: 012755eb2c661b245a70737dae9b4d61, type: 3}
+  letterSound: {fileID: 8300000, guid: 2932261e09f41f647a039cd5ce795fac, type: 3}
+  fireworkSound: {fileID: 8300000, guid: 94aa3d2d956029f45aec077967341e8d, type: 3}
+  startPitch: 0.8
+  endPitch: 1.2
+  pitchVariation: 0.3
+  volume: 0.5
+  pitchProgressionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  initialDelay: 0.05
+  finalDelay: 0.01
+  speedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  stampDuration: 0.7
+  initialStampScale: 7
+  overshootScale: 0.01
+  springStrength: 0.5
+  springOscillations: 3
+  delayBeforeText: 0.2
+  pulseSpeed: 2
+  pulseAmount: 0.1
+  waveSpeed: 2
+  waveAmount: 0.1
+  wavePeriod: 1
+  idleAnimationFadeInDuration: 1
+  sortingLayerName: UI
+  sortingOrder: 102
+  popDuration: 0.19
+  popCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  popScale: {x: 2, y: 2, z: 2}
+  fireworksPrefab: {fileID: 672960735061098856, guid: e4954dd5b922d5842a08d5befd915bb9, type: 3}

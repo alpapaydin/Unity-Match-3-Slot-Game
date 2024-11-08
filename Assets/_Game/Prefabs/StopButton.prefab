@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 4385828009278549096}
   - component: {fileID: 8481949687948515904}
   m_Layer: 0
-  m_Name: ButtonPrefab
+  m_Name: StopButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -206,7 +206,7 @@ MonoBehaviour:
   normalColor: {r: 0.047058824, g: 0.62352943, b: 1, a: 1}
   pressedColor: {r: 0.093449615, g: 0.43640578, b: 0.6603774, a: 1}
   disabledColor: {r: 0.30655926, g: 0.35794884, b: 0.3915094, a: 1}
-  buttonText: SPIN
+  buttonText: STOP
   textMesh: {fileID: 7762744027843538194}
   outlineTextMesh: {fileID: 8177471024623575150}
   sortingLayerName: UI
@@ -214,7 +214,7 @@ MonoBehaviour:
   padding: {x: 0, y: 0}
   enableColorAnimation: 1
   colorFrom: {r: 1, g: 1, b: 1, a: 1}
-  colorTo: {r: 0.52939767, g: 1, b: 0.015686274, a: 1}
+  colorTo: {r: 1, g: 0.471703, b: 0.015686274, a: 1}
   colorCycleSpeed: 20
   enableBounceOnClick: 1
   bounceScale: 1.5
