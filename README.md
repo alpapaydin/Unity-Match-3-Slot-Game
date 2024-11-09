@@ -2,6 +2,8 @@
 
 A unique gaming experience that combines the excitement of slot machines with the strategic gameplay of match-3 puzzles. Built with Unity, this project demonstrates smooth animations, optimized performance, and engaging game mechanics.
 
+![Preview](preview.png)
+
 ## 🎮 Game Features
 
 ### Core Mechanics
@@ -85,13 +87,11 @@ Assets/
 │   ├── Animation/      # Animation controllers
 │   └── Utils/          # Helper utilities
 ├── Prefabs/            # Reusable game objects
-├── ScriptableObjects/  # Game configurations
 └── Scenes/             # Game scenes
 ```
 
 ## 🎯 Future Improvements
 
-- [ ] Additional board size configurations
 - [ ] Special tile types with unique effects
 - [ ] Combo system for advanced scoring
 - [ ] Progressive difficulty system
