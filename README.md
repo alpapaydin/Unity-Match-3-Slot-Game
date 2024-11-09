@@ -2,7 +2,7 @@
 
 A unique gaming experience that combines the excitement of slot machines with the strategic gameplay of match-3 puzzles. Built with Unity, this project demonstrates smooth animations, optimized performance, and engaging game mechanics.
 
-![Preview](preview.png)
+![Preview](preview.PNG)
 
 ## 🎮 Game Features
 
