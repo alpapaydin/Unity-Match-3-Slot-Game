@@ -276,8 +276,8 @@ MonoBehaviour:
   padding: 0.03
   maxSpinSpeed: 10
   accelerationTime: 0.7
-  decelerationTime: 0.5
-  decelerationIncrease: 0.2
+  decelerationTime: 0.7
+  decelerationIncrease: 0.5
   columnStartDelay: 0.25
   spinSpeedCurve:
     serializedVersion: 2

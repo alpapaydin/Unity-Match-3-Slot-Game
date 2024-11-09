@@ -33,7 +33,6 @@ public class SwipeManager : MonoBehaviour
 
     public event Action<int> OnMatchFound;
     public event Action OnSwipeStarted;
-    public event Action OnGameLost;
 
     private bool isSwipeEnabled = false;
     private bool hasSwipedOnce = false;
@@ -264,10 +263,6 @@ public class SwipeManager : MonoBehaviour
             HandleFirstSwipe();
         }
         gameBoard.AfterSwipe();
-        if (gameBoard.GetRemainingMoves() == 0)
-        {
-            HandleNoMovesRemaining();
-        }
     }
 
     private void PlaySwipeSound()
@@ -293,7 +288,7 @@ public class SwipeManager : MonoBehaviour
     private void HandleNoMovesRemaining()
     {
         DisableSwiping();
-        OnGameLost?.Invoke();
+        gameBoard.GameOver();
     }
 
     private void HandleInvalidSwipe()
@@ -327,13 +322,18 @@ public class SwipeManager : MonoBehaviour
         if (activeAnimations == 0 && swipeQueue.Count == 0)
         {
             List<Tile> matches = gameBoard.GetCurrentMatches();
+            Debug.Log("SWIPE ENDED");
             if (matches.Count >= 3)
             {
                 audioSource.PlayOneShot(matchSound);
                 OnMatchFound?.Invoke(matches.Count);
+                gameBoard.GameWon();
                 yield return StartCoroutine(HandleMatchAndReset(matches));
                 swipeQueue.Clear();
                 tilesInUse.Clear();
+            } else if (gameBoard.GetRemainingMoves() == 0)
+            {
+                HandleNoMovesRemaining();
             }
         }
     }

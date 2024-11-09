@@ -36,6 +36,8 @@ public class GameBoard : MonoBehaviour
     public event Action OnExtrasAppeared;
     public event Action OnSwipePhaseStarted;
     public event Action <int> OnSwipe;
+    public event Action OnGameOver;
+    public event Action OnGameWon;
 
     private Dictionary<TileType, int> tileTypeCounts;
     private TileType[][] preconstructedColumns;
@@ -61,6 +63,7 @@ public class GameBoard : MonoBehaviour
     private float[] currentPositions;
     private int spinCount = 0;
     private int remainingSwipes = 0;
+    private float currentDeceleration = 0;
 
     public int GridSize => gridSize;
     public bool IsInitialized => isInitialized;
@@ -119,6 +122,7 @@ public class GameBoard : MonoBehaviour
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
         spinCount = 0;
+        currentDeceleration = decelerationTime;
         isSpinning = false;
         spinningColumns = null;
         isStoppingSequence = false;
@@ -166,15 +170,21 @@ public class GameBoard : MonoBehaviour
 
     public int GetMinimumMovesToMatch()
     {
-        return MinMovesSolver.FindMinimumMovesToMatch(this);
+        remainingSwipes = MinMovesSolver.FindMinimumMovesToMatch(this);
+        return remainingSwipes;
     }
+
+    public void GameOver()
+    { OnGameOver?.Invoke(); }
+
+    public void GameWon()
+    { OnGameWon?.Invoke(); }
 
     public int GetRemainingMoves()
     { return remainingSwipes; }
 
     public void StartSwipePhase()
     {
-        remainingSwipes = GetMinimumMovesToMatch();
         OnSwipePhaseStarted.Invoke();
     }
 
@@ -309,19 +319,19 @@ public class GameBoard : MonoBehaviour
 
     private IEnumerator SmoothDecelerateAndAlignColumn(int column, SpinningColumn spinningColumn)
     {
-        float decelerationTimer = decelerationTime;
+        currentDeceleration += decelerationIncrease / gridSize;
+        float decelerationTimer = currentDeceleration;
         float initialSpeed = spinningColumn.currentSpeed;
         while (decelerationTimer > 0)
         {
             decelerationTimer -= Time.deltaTime;
-            float progress = 1f - (decelerationTimer / decelerationTime);
+            float progress = 1f - (decelerationTimer / currentDeceleration);
             float speedProgress = 1f - Mathf.SmoothStep(0f, 1f, progress);
             spinningColumn.currentSpeed = initialSpeed * speedProgress;
             AlignColumnForStop(column, spinningColumn);
             UpdateSpinningColumn(column, spinningColumn);
             yield return null;
         }
-        decelerationTime += decelerationIncrease;
         spinningColumn.currentSpeed = 0;
         AlignColumnForStop(column, spinningColumn);
         UpdateSpinningColumn(column, spinningColumn);
@@ -854,6 +864,7 @@ public class GameBoard : MonoBehaviour
         {
             isSpinning = false;
             spinningColumns = null;
+            GetMinimumMovesToMatch();
             OnSpinComplete?.Invoke();
         }
     }

@@ -59,17 +59,20 @@ public class GameUIManager : MonoBehaviour
         gameBoard.OnExtrasAppeared += InitializeSpinSound;
         gameBoard.OnSwipePhaseStarted += OpenPanel;
         gameBoard.OnSwipe += UpdateMoveCount;
+        gameBoard.OnGameOver += GameOver;
+        gameBoard.OnGameWon += ClosePanel;
     }
 
     private void UpdateMoveCount(int remaining)
     {
         if (!currentPanel) return;
         currentPanel.SetMoveCount(remaining);
-        if (remaining == 0)
-        {
-            audioSource.PlayOneShot(failSound);
-            StartCoroutine(ShowGameOverPanel());
-        }
+    }
+
+    private void GameOver()
+    {
+        audioSource.PlayOneShot(failSound);
+        StartCoroutine(ShowGameOverPanel());
     }
 
     private IEnumerator ShowGameOverPanel()
